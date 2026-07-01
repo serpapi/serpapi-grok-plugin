@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "serpapi": {
+      "type": "http",
+      "url": "https://mcp.serpapi.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${SERPAPI_KEY}"
+      },
+      "note": "Official SerpApi hosted MCP server. Requires SERPAPI_KEY to be set in your environment (get one at https://serpapi.com/dashboard) — the same key used by the serpapi-cli fallback. Tools: search, search_table, search_dashboard. Resources: serpapi://engines, serpapi://engines/<engine>."
+    }
+  }
+}

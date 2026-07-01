@@ -1,0 +1,20 @@
+{
+  "name": "serpapi",
+  "version": "0.1.0",
+  "description": "Multi-engine search results (Google, Bing, YouTube, eBay, Maps, News, Shopping, and more) via the hosted SerpApi MCP server.",
+  "author": {
+    "name": "SerpApi",
+    "url": "https://github.com/serpapi"
+  },
+  "repository": "https://github.com/serpapi/serpapi-grok-plugin",
+  "homepage": "https://serpapi.com",
+  "license": "MIT",
+  "keywords": [
+    "serpapi",
+    "search",
+    "google",
+    "web-search",
+    "serp",
+    "mcp"
+  ]
+}
