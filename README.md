@@ -1,57 +1,28 @@
 # SerpApi Plugin for Grok Build
 
-Real-time, multi-engine search results — directly from Grok Build.
+This plugin gives Grok Build the ability to search Google, Bing, YouTube, eBay, Amazon, Walmart, Google Maps, Google Scholar, and 130+ other engines through SerpApi.
 
-This plugin bundles SerpApi's hosted [MCP server](https://github.com/serpapi/serpapi-mcp) plus a
-skill that documents how to use it, giving Grok Build structured search across 130+ engines: Google
-(web, images, news, shopping, maps/local, finance, flights, hotels, jobs, scholar), Bing, Yahoo,
-Yandex, Baidu, Naver, DuckDuckGo, YouTube, eBay, Amazon, Walmart, and more.
+## Quick Start
 
-**The hosted MCP is the primary way this plugin works** — its native `search` tool is the default
-execution path, authenticated via a bearer key you provide. The [SerpApi CLI](https://github.com/serpapi/serpapi-cli)
-is an optional fallback, used when the MCP is unavailable.
+### 1. Get an API key
 
-## Features
-
-- **Search** — one `search` tool spanning 130+ engines via `params.engine`
-- **Structured results** — JSON with prices, ratings, addresses, and other fields, not just links
-  and snippets
-- **Interactive views** (MCP Apps-capable clients only) — `search_table` and `search_dashboard`
-  render results as a sortable table or a metrics dashboard
-
-## Installation
-
-### 1. Install the Plugin
-
-In Grok Build, run `/plugin` and search for **serpapi**, then select it to install. This wires up
-the bundled MCP server and the `serpapi-search` skill.
-
-### 2. Get and set your API key
-
-Unlike OAuth-based plugins, SerpApi's hosted MCP authenticates with a bearer token you provide:
+Sign up at [serpapi.com](https://serpapi.com/dashboard) and set your API key.
 
 ```bash
 export SERPAPI_KEY="your-key-here"
 ```
 
-Get a key at https://serpapi.com/dashboard. See
-[skills/serpapi-search/rules/setup.md](skills/serpapi-search/rules/setup.md) for details and
-troubleshooting.
+Unlike OAuth based plugins, SerpApi's hosted MCP server authenticates with this bearer token, so the key must be set before Grok Build starts.
 
-### Optional: SerpApi CLI (fallback)
+### 2. Install the plugin
 
-The bundled MCP covers normal search use. For when the MCP isn't connected, install the
-[SerpApi CLI](https://github.com/serpapi/serpapi-cli):
+In Grok Build, run `/plugin`, search for **serpapi**, and select it to install. This wires up the bundled MCP server and the `serpapi-search` skill.
 
-```bash
-brew install serpapi/tap/serpapi-cli
-```
+See [skills/serpapi-search/rules/setup.md](skills/serpapi-search/rules/setup.md) for detailed setup and troubleshooting.
 
-It reads the same `SERPAPI_KEY`, so no separate auth step is needed.
+### 3. Use it
 
-## Usage
-
-Once installed and authenticated, ask naturally:
+Once installed and authenticated, ask naturally.
 
 ```text
 Search for "best practices for React testing" and compile the key recommendations
@@ -69,20 +40,48 @@ What's the AAPL stock price right now?
 Search YouTube for "rust async tutorial"
 ```
 
+## Features
+
+The hosted MCP server is the primary way this plugin works. Its native `search` tool is the default execution path, authenticated with the bearer key you provide.
+
+- **Single tool, all engines.** The `serpapi-search` skill covers 130+ engines through one `search` tool, with `params.engine` selecting the vertical.
+- **Structured results.** Responses are JSON with prices, ratings, addresses, and other fields, not just links and snippets.
+- **Interactive views.** MCP Apps capable clients can render results with `search_table`, a sortable table, and `search_dashboard`, a metrics dashboard.
+- **Fallback friendly.** The [SerpApi CLI](https://github.com/serpapi/serpapi-cli) is available as an optional fallback for when the MCP server is unavailable. It reads the same `SERPAPI_KEY`, so no separate authentication step is needed.
+
+```bash
+brew install serpapi/tap/serpapi-cli
+```
+
+## Supported Engines
+
+| Category     | Engines                                                             |
+| ------------ | --------------------------------------------------------------------- |
+| Web Search   | Google, Bing, DuckDuckGo, Yahoo, Yandex, Baidu, Naver                   |
+| Shopping     | Amazon, Walmart, eBay, Google Shopping                                  |
+| Local / Maps | Google Maps, Google Local                                              |
+| Research     | Google Scholar, Google Patents, Google Trends                           |
+| News         | Google News, Bing News, DuckDuckGo News, Baidu News                      |
+| Media        | Google Images, Google Videos, YouTube                                    |
+| Travel       | Google Flights, Google Hotels                                            |
+| Jobs         | Google Jobs                                                              |
+| Finance      | Google Finance                                                           |
+
+See the full list of [Supported Engines](https://serpapi.com/search-engine-apis).
+
 ### CLI Commands (optional fallback)
 
-| Command             | Description                                     |
-| -------------------- | ------------------------------------------------ |
-| `serpapi search ...`   | Run a search against any engine                   |
-| `serpapi account`      | Check remaining quota/credits                       |
-| `serpapi locations`    | Look up available search locations (no key needed)    |
-| `serpapi archive <id>` | Retrieve a cached result by search ID                 |
-| `serpapi login`        | Interactive auth setup                                 |
+| Command                 | Description                                          |
+| ------------------------ | ------------------------------------------------------ |
+| `serpapi search ...`     | Run a search against any engine                          |
+| `serpapi account`        | Check remaining quota and credits                          |
+| `serpapi locations`      | Look up available search locations, no key needed          |
+| `serpapi archive <id>`   | Retrieve a cached result by search ID                        |
+| `serpapi login`          | Interactive authentication setup                              |
 
 ## Output Files
 
-For large result sets, results are saved to a `.serpapi/` directory in your project to keep Grok
-Build's context window clean:
+For large result sets, results are saved to a `.serpapi/` directory in your project to keep Grok Build's context window clean.
 
 ```text
 .serpapi/search-coffee_shops_austin.json
@@ -95,11 +94,24 @@ Build's context window clean:
 | ------------- | -------- | ---------------------------------------------------------------------- |
 | `SERPAPI_KEY`  | Yes      | Bearer key used by both the MCP `Authorization` header and the CLI fallback |
 
+## Troubleshooting
+
+- **Invalid API key.** Verify your key at [serpapi.com/manage-api-key](https://serpapi.com/manage-api-key).
+- **MCP tools not available.** Start a new Grok Build session after installing the plugin or changing MCP configuration.
+- **Plugin not listed.** Run `grok plugin list`, then reinstall it if it's missing.
+- **Quota or rate limit exceeded.** Check usage in the [SerpApi dashboard](https://serpapi.com/dashboard) or review [pricing](https://serpapi.com/pricing).
+
+Run `grok mcp doctor serpapi` for a detailed diagnosis of MCP connection issues.
+
+## Testing
+
+See [TEST.md](TEST.md) for how to validate and exercise this plugin locally against the `grok` CLI.
+
 ## Resources
 
 - [SerpApi Documentation](https://serpapi.com/search-api)
-- [SerpApi MCP Server Repository](https://github.com/serpapi/serpapi-mcp)
-- [SerpApi CLI Repository](https://github.com/serpapi/serpapi-cli)
+- [SerpApi MCP Server Repository](https://github.com/serpapi/serpapi-mcp), the MCP server integration used by this plugin and other MCP compatible clients.
+- [SerpApi CLI Repository](https://github.com/serpapi/serpapi-cli), the optional command line fallback.
 - [Supported Engines](https://serpapi.com/search-engine-apis)
 - [Get API Key](https://serpapi.com/dashboard)
 
@@ -109,4 +121,4 @@ This plugin is licensed under MIT.
 
 ## Support
 
-- [GitHub Issues](https://github.com/serpapi/serpapi-mcp/issues)
+Report issues at [SerpApi MCP GitHub Issues](https://github.com/serpapi/serpapi-mcp/issues).
