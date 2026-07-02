@@ -16,7 +16,13 @@ Unlike OAuth based plugins, SerpApi's hosted MCP server authenticates with this 
 
 ### 2. Install the plugin
 
-In Grok Build, run `/plugin`, search for **serpapi**, and select it to install. This wires up the bundled MCP server and the `serpapi-search` skill.
+Install it directly from the [serpapi-grok-plugin](https://github.com/serpapi/serpapi-grok-plugin) repository.
+
+```bash
+grok plugin install serpapi/serpapi-grok-plugin --trust
+```
+
+This wires up the bundled MCP server and the `serpapi-search` skill. Once the plugin is listed in a marketplace source, you'll also be able to find it in Grok Build by running `/plugin` and searching for **serpapi**.
 
 See [skills/serpapi-search/rules/setup.md](skills/serpapi-search/rules/setup.md) for detailed setup and troubleshooting.
 
