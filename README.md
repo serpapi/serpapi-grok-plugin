@@ -1,6 +1,6 @@
 # SerpApi Plugin for Grok Build
 
-This plugin gives Grok Build the ability to search Google, Bing, YouTube, eBay, Amazon, Walmart, Google Maps, Google Scholar, and 130+ other engines through SerpApi.
+This plugin gives Grok Build the ability to search Google, Bing, YouTube, eBay, Amazon, Walmart, Google Maps, Google Scholar, and 130+ other engines through SerpApi, and to read web pages with the SerpApi Extract API.
 
 ## Quick Start
 
@@ -46,11 +46,16 @@ What's the AAPL stock price right now?
 Search YouTube for "rust async tutorial"
 ```
 
+```text
+Summarize https://serpapi.com/blog/using-serpapi-in-google-colab/
+```
+
 ## Features
 
 The hosted MCP server is the primary way this plugin works. Its native `search` tool is the default execution path, authenticated with the bearer key you provide.
 
 - **Single tool, all engines.** The `serpapi-search` skill covers 130+ engines through one `search` tool, with `params.engine` selecting the vertical.
+- **Read web pages.** The same `search` tool reads pages through the Extract API (`engine: "extract"`): scrape a URL into structured content and Markdown, map a site's URLs, or crawl several pages.
 - **Structured results.** Responses are JSON with prices, ratings, addresses, and other fields, not just links and snippets.
 - **Interactive views.** MCP Apps capable clients can render results with `search_table`, a sortable table, and `search_dashboard`, a metrics dashboard.
 - **Fallback friendly.** The [SerpApi CLI](https://github.com/serpapi/serpapi-cli) is available as an optional fallback for when the MCP server is unavailable. It reads the same `SERPAPI_KEY`, so no separate authentication step is needed.
@@ -72,6 +77,7 @@ brew install serpapi/tap/serpapi-cli
 | Travel       | Google Flights, Google Hotels                                            |
 | Jobs         | Google Jobs                                                              |
 | Finance      | Google Finance                                                           |
+| Web Pages    | Extract (scrape, map, crawl)                                             |
 
 See the full list of [Supported Engines](https://serpapi.com/search-engine-apis).
 

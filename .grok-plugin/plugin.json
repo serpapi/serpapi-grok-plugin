@@ -1,7 +1,7 @@
 {
   "name": "serpapi",
-  "version": "0.1.0",
-  "description": "Multi-engine search results (Google, Bing, YouTube, eBay, Maps, News, Shopping, and more) via the hosted SerpApi MCP server.",
+  "version": "0.2.0",
+  "description": "Multi-engine search results (Google, Bing, YouTube, eBay, Maps, News, Shopping, and more) and web page extraction via the hosted SerpApi MCP server.",
   "author": {
     "name": "SerpApi",
     "url": "https://github.com/serpapi"
