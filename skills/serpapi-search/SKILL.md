@@ -6,10 +6,9 @@ description: |
   DuckDuckGo, YouTube, eBay, Amazon, Walmart, and more. Use this skill whenever the user asks to
   search the web, find articles, research a topic, look something up, find recent news, check a stock
   price, get the weather, find local businesses, compare shopping results, or search a specific engine
-  by name (e.g. "search YouTube for", "search eBay for"). Also reads web pages via the Extract API —
-  use it when the user asks to read, scrape, or summarize a URL, get a page as Markdown, list a site's
-  pages, or crawl a site. Returns structured JSON — prices, ratings, addresses, knowledge graph data,
-  page content — not just links and snippets.
+  by name (e.g. "search YouTube for", "search eBay for"). Returns structured JSON — prices, ratings,
+  addresses, knowledge graph data — not just links and snippets. To read a known URL, use the
+  serpapi-extract skill instead.
 allowed-tools:
   - mcp__serpapi__search
   - mcp__serpapi__search_table
@@ -21,8 +20,8 @@ allowed-tools:
 
 One tool, many engines. `params.engine` selects the search vertical (Google web/images/news/shopping/
 maps/finance/flights/hotels/jobs/scholar, Bing, Yahoo, Yandex, Baidu, Naver, DuckDuckGo, YouTube,
-eBay, Amazon, Walmart, and 100+ more) — see [Choosing an engine](#choosing-an-engine) below. The
-same tool reads web pages with `engine: "extract"` — see [Reading web pages](#reading-web-pages-extract).
+eBay, Amazon, Walmart, and 100+ more) — see [Choosing an engine](#choosing-an-engine) below. To read
+or crawl a known URL, use the [serpapi-extract](../serpapi-extract/SKILL.md) skill (`engine: "extract"`).
 
 ## Tools: MCP first, CLI fallback
 
@@ -77,7 +76,7 @@ Default to `_light` variants for AI-agent use — lower latency, smaller payload
 | Marketplace listings                    | `ebay`, `amazon`, `walmart`                           |
 | Alternative web engines                   | `bing`, `duckduckgo`, `yahoo`, `yandex`, `baidu`, `naver` |
 | Weather                                     | `google` with a weather query (e.g. `"weather in London"`) |
-| Read / scrape / crawl a web page               | `extract` with `url` instead of `q` — see [Reading web pages](#reading-web-pages-extract) |
+| Read / scrape / crawl a known URL               | `extract` — see the [serpapi-extract](../serpapi-extract/SKILL.md) skill |
 
 This covers common cases only — 130+ engines exist (patents, trends, app stores, transcripts, reverse
 image, etc.). Before using an unfamiliar engine or one with non-obvious parameters, check its schema
@@ -86,48 +85,11 @@ rather than guessing:
 - **MCP**: read the `serpapi://engines` resource (index) or `serpapi://engines/<engine>` (full schema)
 - **CLI/no MCP**: https://serpapi.com/search-engine-apis lists every engine and its parameters
 
-`extract` isn't listed in `serpapi://engines` yet — it's still supported; use the parameters below.
-
-## Reading web pages (Extract)
-
-`engine: "extract"` fetches a page and returns its content as structured JSON. It takes `url` (an
-absolute http/https URL) instead of `q`:
-
-```json
-{"name": "search", "arguments": {"params": {"engine": "extract", "url": "https://example.com/post", "include_markdown": true, "json_restrictor": "page_information.title,text_content.markdown"}, "mode": "compact"}}
-```
-
-```json
-{"name": "search", "arguments": {"params": {"engine": "extract", "url": "https://example.com", "mode": "map", "json_restrictor": "urls[].url"}, "mode": "compact"}}
-```
-
-```bash
-serpapi search --jq '.text_content.markdown' engine=extract url=https://example.com/post include_markdown=true
-```
-
-| Extract `params.mode` | Returns                                                              |
-| ---------------------- | --------------------------------------------------------------------- |
-| `scrape` (default)     | One page: `page_information`, `headings`, `sections`, `text_content` (`markdown` with `include_markdown: true`) |
-| `map`                  | `urls[]` — the site's URLs from page links and sitemaps                 |
-| `crawl`                | `pages[]` — follows same-site links and extracts every page visited     |
-
-- `params.mode` here is Extract's own mode — separate from the tool-level `mode: "compact"`.
-- Pass `include_markdown: true` and read `text_content.markdown` for readable page text. Always add
-  a `json_restrictor` — the unrestricted response includes every link, script, and stylesheet.
-- Narrow noisy pages with `exclude_tags` (CSS selectors, e.g. `"nav, footer"`). Use `include_tags`
-  only when you know the page's structure — if no selector matches, the content comes back empty.
-- `crawl` costs **one credit per page** — use `scrape` for a single page, and only crawl when the user
-  asks for multiple pages; cap it with `max_pages` (default 10, max 100) and `max_depth` (default 2,
-  max 3). Prefer `map` first to find the right pages, then `scrape` only those.
-- Extract doesn't run JavaScript — pages rendered client-side may come back mostly empty.
-- Search URLs for engines SerpApi already supports (e.g. a Google results page) are redirected to that
-  engine — use the dedicated engine directly instead.
-
 ## Parameters
 
 | Parameter          | Description                                                   |
 | ------------------- | -------------------------------------------------------------- |
-| `params.q`           | Search query (required, except `extract`, which takes `params.url`) |
+| `params.q`           | Search query (required)                                        |
 | `params.engine`       | Engine to use (default: `google_light`)                        |
 | `params.location`     | Geographic location for location-sensitive results              |
 | `mode`               | `"complete"` (full payload, default) or `"compact"` (condensed, MCP only) |
@@ -136,9 +98,8 @@ serpapi search --jq '.text_content.markdown' engine=extract url=https://example.
 ## Token efficiency
 
 - **MCP**: pass `mode: "compact"` — strips `search_metadata`/`search_parameters`. For large payloads
-  (Extract pages, Google Finance charts, long result lists) also pass `params.json_restrictor` with
-  only the fields you need, e.g. `"summary"` (finance), `"organic_results[].{title,link,snippet}"`,
-  or `"text_content.markdown"` (extract). A full Extract page can be ~100 KB; restricted it's a few KB.
+  (Google Finance charts, long result lists) also pass `params.json_restrictor` with
+  only the fields you need, e.g. `"summary"` (finance) or `"organic_results[].{title,link,snippet}"`.
 - **CLI**: use `--fields` (server-side, maps to SerpApi's `json_restrictor`) to drop whole sections,
   or `--jq` (client-side, embedded jq) to shape the exact output:
   ```bash
@@ -155,7 +116,8 @@ Install: `brew install serpapi/tap/serpapi-cli` (or download a binary from GitHu
 
 | Subcommand   | Purpose                                        |
 | ------------ | ----------------------------------------------- |
-| `search`     | Execute a query against any SerpApi engine       |
+| `search`     | Execute a query against any SerpApi engine (including `engine=extract`, see serpapi-extract) |
+| `image`      | Upload an image for `google_lens`, print its `image_id` (v0.4.0+) |
 | `account`    | View account details, usage, and remaining quota  |
 | `locations`  | Look up available search locations (no key needed) |
 | `archive`    | Retrieve a cached result by search ID              |
@@ -184,7 +146,7 @@ serpapi account   # check remaining credits before a large batch of searches
 - **401** — invalid or missing key. Re-check `SERPAPI_KEY` / the MCP auth header.
 - **429** — quota exceeded. Check `serpapi account` or https://serpapi.com/dashboard before retrying;
   don't loop retries against a maxed-out quota.
-- **400** — missing required parameter (`q` or `engine`; `url` for `extract`).
+- **400** — missing required parameter (`q` or `engine`).
 
 ## Interactive results (MCP Apps-capable clients only)
 
@@ -203,3 +165,4 @@ serpapi account   # check remaining credits before a large batch of searches
 
 - [rules/setup.md](rules/setup.md) — getting and configuring `SERPAPI_KEY` for both MCP and CLI
 - [rules/security.md](rules/security.md) — handling untrusted result content
+- [serpapi-extract](../serpapi-extract/SKILL.md) — reading, mapping, and crawling web pages
